@@ -18,8 +18,22 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Generate Gradle Wrapper
-      run: gradle wrapper
+    - name: Auto-Create Missing Gradle Files
+      run: |
+        if [ ! -f settings.gradle ]; then
+          echo "include ':app'" > settings.gradle
+          echo 'rootProject.name = "Webapk"' >> settings.gradle
+        fi
+        if [ ! -f build.gradle ]; then
+          printf "buildscript {\n    repositories {\n        google()\n        mavenCentral()\n    }\n    dependencies {\n        classpath 'com.android.tools.build:gradle:8.1.1'\n    }\n}\nallprojects {\n    repositories {\n        google()\n        mavenCentral()\n    }\n}\n" > build.gradle
+        fi
+        mkdir -p app
+        if [ ! -f app/build.gradle ]; then
+          printf "plugins {\n    id 'com.android.application'\n}\nandroid {\n    namespace 'com.vidofy.app'\n    compileSdk 34\n    defaultConfig {\n        applicationId 'com.vidofy.app'\n        minSdk 24\n        targetSdk 34\n        versionCode 1\n        versionName '1.0'\n    }\n}\ndependencies {\n    implementation 'androidx.appcompat:appcompat:1.6.1'\n    implementation 'com.google.android.material:material:1.9.0'\n    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'\n}\n" > app/build.gradle
+        fi
+
+    - name: Generate Gradle Wrapper for Version 8.2
+      run: gradle wrapper --gradle-version 8.2
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
