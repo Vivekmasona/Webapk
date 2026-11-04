@@ -28,7 +28,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Dynamic layout creation for zero XML file hassle
         swipeRefreshLayout = new SwipeRefreshLayout(this);
         webView = new WebView(this);
         swipeRefreshLayout.addView(webView);
