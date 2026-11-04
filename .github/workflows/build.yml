@@ -2,7 +2,9 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
 
 jobs:
   build:
@@ -20,82 +22,12 @@ jobs:
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: '8.5'
-
-    - name: Create Project Structure & Files
-      run: |
-        mkdir -p app/src/main/java/com/vidofy/app
-        mkdir -p app/src/main/res
-        
-        # settings.gradle
-        cat << 'EOF' > settings.gradle
-        pluginManagement {
-            repositories {
-                google()
-                mavenCentral()
-                gradlePluginPortal()
-            }
-        }
-        dependencyResolutionManagement {
-            repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-            repositories {
-                google()
-                mavenCentral()
-            }
-        }
-        rootProject.name = "Webapk"
-        include ':app'
-        EOF
-
-        # root build.gradle
-        cat << 'EOF' > build.gradle
-        plugins {
-            id 'com.android.application' version '8.2.0' apply false
-        }
-        EOF
-
-        # app/build.gradle
-        cat << 'EOF' > app/build.gradle
-        plugins {
-            id 'com.android.application'
-        }
-
-        android {
-            namespace 'com.vidofy.app'
-            compileSdk 34
-
-            defaultConfig {
-                applicationId "com.vidofy.app"
-                minSdk 24
-                targetSdk 34
-                versionCode 1
-                versionName "1.0"
-            }
-
-            buildTypes {
-                release {
-                    minifyEnabled false
-                }
-            }
-            compileOptions {
-                sourceCompatibility JavaVersion.VERSION_17
-                targetCompatibility JavaVersion.VERSION_17
-            }
-        }
-
-        dependencies {
-            implementation 'androidx.appcompat:appcompat:1.6.1'
-            implementation 'com.google.android.material:material:1.11.0'
-            implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
-        }
-        EOF
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug || gradle assembleDebug
+      run: ./gradlew clean assembleDebug --stacktrace
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: app-debug
+        name: debug-apk
         path: app/build/outputs/apk/debug/app-debug.apk
